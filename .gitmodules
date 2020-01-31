@@ -1,0 +1,6 @@
+[submodule "sidewinder"]
+	path = sidewinder
+	url = https://github.com/joshpoll/sidewinder
+[submodule "SMALL"]
+	path = SMALL
+	url = https://github.com/joshpoll/SMALL
