@@ -20,7 +20,8 @@
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
     "reason-react": ">=0.7.0",
-    "sidewinder": "github:joshpoll/sidewinder"
+    "sidewinder": "github:joshpoll/sidewinder",
+    "small": "github:joshpoll/SMALL"
   },
   "devDependencies": {
     "bs-platform": "^7.0.2-dev.1",
