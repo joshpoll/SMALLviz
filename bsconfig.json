@@ -1,5 +1,5 @@
 {
-  "name": "reason-react-examples",
+  "name": "smallviz",
   "reason": {
     "react-jsx": 3
   },
@@ -10,10 +10,6 @@
     },
     {
       "dir": "SMALL/src",
-      "subdirs": true
-    },
-    {
-      "dir": "sidewinder/src",
       "subdirs": true
     }
   ],
@@ -30,7 +26,9 @@
   "suffix": ".bs.js",
   "namespace": true,
   "bs-dependencies": [
-    "reason-react"
+    "reason-react",
+    "@glennsl/bs-json",
+    "sidewinder"
   ],
   "refmt": 3
 }

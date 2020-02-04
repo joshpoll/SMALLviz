@@ -1,4 +1,0 @@
-[submodule "SMALL"]
-	path = SMALL
-	url = https://github.com/joshpoll/SMALL
-  update = rebase
