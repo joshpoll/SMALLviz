@@ -29,23 +29,29 @@ let makeContainer = text => {
 
 // All 4 examples.
 ReactDOMRe.render(
-  <BlinkingGreeting>
-    {React.string("Hello!")}
-  </BlinkingGreeting>,
+  <BlinkingGreeting> {React.string("Hello!")} </BlinkingGreeting>,
   makeContainer("Blinking Greeting"),
 );
 
+ReactDOMRe.render(<ReducerFromReactJSDocs />, makeContainer("Reducer From ReactJS Docs"));
+
+ReactDOMRe.render(<FetchedDogPictures />, makeContainer("Fetched Dog Pictures"));
+
+ReactDOMRe.render(<ReasonUsingJSUsingReason />, makeContainer("Reason Using JS Using Reason"));
+
+ReactDOMRe.render(<ReasonUsingJSUsingReason />, makeContainer("Reason Using JS Using Reason"));
+
 ReactDOMRe.render(
-  <ReducerFromReactJSDocs />,
-  makeContainer("Reducer From ReactJS Docs"),
+  <Visualize node=SidewinderExamples.g width=500. height=300. />,
+  makeContainer("linked list"),
 );
 
 ReactDOMRe.render(
-  <FetchedDogPictures />,
-  makeContainer("Fetched Dog Pictures"),
+  <Visualize node=SidewinderExamples.astExample width=500. height=300. />,
+  makeContainer("AST"),
 );
 
 ReactDOMRe.render(
-  <ReasonUsingJSUsingReason />,
-  makeContainer("Reason Using JS Using Reason"),
+  <Visualize node=Append.env width=500. height=300. />,
+  makeContainer("extended linked list example"),
 );

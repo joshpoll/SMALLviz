@@ -1,4 +1,4 @@
-/* Compiler from SML configuration to TheiaIR */
+/* /* Compiler from SML configuration to TheiaIR */
 /* TODO: so many List.revs. Maybe I should change the default? */
 open SML;
 open Theia;
@@ -318,4 +318,4 @@ let compileFrame = ({rewrite, env}) =>
   );
 
 /* TODO: HSequence? */
-let smlToTheiaIR = fs => VSequence(List.map(compileFrame, fs) |> List.rev, None);
+let smlToTheiaIR = fs => VSequence(List.map(compileFrame, fs) |> List.rev, None); */

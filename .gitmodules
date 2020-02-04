@@ -1,7 +1,3 @@
-[submodule "sidewinder"]
-	path = sidewinder
-	url = https://github.com/joshpoll/sidewinder
-  update = rebase
 [submodule "SMALL"]
 	path = SMALL
 	url = https://github.com/joshpoll/SMALL
