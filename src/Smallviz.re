@@ -50,6 +50,11 @@ ReactDOMRe.render(
   <Visualize node=Sidewinder.SidewinderExamples.astExample width=500. height=300. />,
   makeContainer("AST"),
 );
+
+[|Small.Main.{name: "foo", text: "5"}|] |> Array.map(Small.Main.traceProgram) |> Js.Promise.all;
+
+/* |> Js.Promise.then_(theiaIRTraces => Js.Promise.resolve(Js.log2("theiaIRTraces", theiaIRTraces))); */
+
 /*
  ReactDOMRe.render(
    <Visualize node=Sidewinder.Append.env width=500. height=300. />,
