@@ -42,16 +42,16 @@ ReactDOMRe.render(<ReasonUsingJSUsingReason />, makeContainer("Reason Using JS U
 ReactDOMRe.render(<ReasonUsingJSUsingReason />, makeContainer("Reason Using JS Using Reason"));
 
 ReactDOMRe.render(
-  <Visualize node=SidewinderExamples.g width=500. height=300. />,
+  <Visualize node=Sidewinder.SidewinderExamples.g width=500. height=300. />,
   makeContainer("linked list"),
 );
 
 ReactDOMRe.render(
-  <Visualize node=SidewinderExamples.astExample width=500. height=300. />,
+  <Visualize node=Sidewinder.SidewinderExamples.astExample width=500. height=300. />,
   makeContainer("AST"),
 );
-
-ReactDOMRe.render(
-  <Visualize node=Append.env width=500. height=300. />,
-  makeContainer("extended linked list example"),
-);
+/*
+ ReactDOMRe.render(
+   <Visualize node=Sidewinder.Append.env width=500. height=300. />,
+   makeContainer("extended linked list example"),
+ ); */

@@ -24,7 +24,7 @@
     "small": "github:joshpoll/SMALL"
   },
   "devDependencies": {
-    "bs-platform": "^7.0.2-dev.1",
+    "bs-platform": "7.0.2-dev.1",
     "moduleserve": "^0.9.0"
   }
 }
