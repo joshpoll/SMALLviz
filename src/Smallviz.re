@@ -53,6 +53,11 @@ ReactDOMRe.render(
 
 [|Small.Main.{name: "foo", text: "5"}|] |> Array.map(Small.Main.traceProgram) |> Js.Promise.all;
 
+ReactDOMRe.render(
+  <SMALLtrace program=Small.Main.{name: "bar", text: "5"} />,
+  makeContainer("SMALLviz"),
+);
+
 /* |> Js.Promise.then_(theiaIRTraces => Js.Promise.resolve(Js.log2("theiaIRTraces", theiaIRTraces))); */
 
 /*
