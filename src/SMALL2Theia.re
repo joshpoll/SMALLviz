@@ -9,11 +9,11 @@ let rec interleave = (xs, ys) =>
   | ([x, ...xs], _) => [x, ...interleave(ys, xs)]
   };
 
-let hSeq = nodes =>
-  seq(~nodes, ~linkRender=(~source, ~target) => <> </>, ~gap=0., ~direction=LeftRight);
+let hSeq = (~gap=0., nodes) =>
+  seq(~nodes, ~linkRender=(~source, ~target) => <> </>, ~gap, ~direction=LeftRight);
 
-let vSeq = nodes =>
-  seq(~nodes, ~linkRender=(~source, ~target) => <> </>, ~gap=0., ~direction=UpDown);
+let vSeq = (~gap=0., nodes) =>
+  seq(~nodes, ~linkRender=(~source, ~target) => <> </>, ~gap, ~direction=UpDown);
 
 let apply = (ops, args) => hSeq(interleave(ops, args));
 
@@ -34,7 +34,8 @@ let kv = (key, value) =>
     [],
   );
 
-let map = (~keyHeader, ~valueHeader, kvs) => vSeq([hSeq([keyHeader, valueHeader]), ...kvs]);
+let map = (~keyHeader, ~valueHeader, kvs) =>
+  vSeq(~gap=2., [hSeq(~gap=5., [keyHeader, valueHeader]), ...kvs]);
 
 let split = (list, n) => {
   let rec aux = (i, acc) =>
@@ -293,10 +294,11 @@ let compileRewrite = ({focus, ctxts}) =>
   zipper(compileFocus(focus), List.map(compileCtxt, ctxts));
 
 let compileFrame = ({rewrite, env}) =>
-  cell(
-    "frame",
-    [cell("env", [compileEnv(env)]), cell("rewrite", [compileRewrite(rewrite)])],
-  );
+  vSeq([
+    /* "frame", */
+    cell("env", [compileEnv(env)]),
+    cell("rewrite", [compileRewrite(rewrite)]),
+  ]);
 
 /* TODO: hSeq? */
 let smlToTheiaIR = fs => vSeq(List.map(compileFrame, fs) |> List.rev);

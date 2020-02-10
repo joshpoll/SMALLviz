@@ -1,10 +1,15 @@
+let render = n =>
+  Sidewinder.(
+    n |> LCA.propagateLCA |> Layout.computeBBoxes |> RenderLinks.renderLinks |> Render.render
+  );
+
 type state =
   | LoadingTrace
   | ErrorFetchingTrace
   | LoadedTrace(list(Small.SML.configuration));
 
 [@react.component]
-let make = (~program, ~width, ~height) => {
+let make = (~program) => {
   let (state, setState) = React.useState(() => LoadingTrace);
 
   // Notice that instead of `useEffect`, we have `useEffect0`. See
@@ -31,43 +36,50 @@ let make = (~program, ~width, ~height) => {
     None;
   });
 
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={Js.Float.toString(width)}
-    height={Js.Float.toString(height)}>
-    <g
-      transform={
-        "translate("
-        ++ Js.Float.toString(width /. 2.)
-        ++ ", "
-        ++ Js.Float.toString(height /. 2.)
-        ++ ")"
-      }>
-      {switch (state) {
-       | ErrorFetchingTrace => React.string("An error occurred!")
-       | LoadingTrace => React.string("Loading...")
-       | LoadedTrace(trace) =>
-         let swTrace = List.map(SMALL2Theia.smlToTheiaIR, trace);
-         <> {List.nth(swTrace, 0) |> Sidewinder.Main.render} </>;
-       /* ->Belt.Array.mapWithIndex((i, dog) => {
-                   let imageStyle =
-                     ReactDOMRe.Style.make(
-                       ~height="120px",
-                       ~width="100%",
-                       ~marginRight=i === Js.Array.length(dogs) - 1 ? "0px" : "8px",
-                       ~borderRadius="8px",
-                       ~boxShadow="0px 4px 16px rgb(200, 200, 200)",
-                       ~backgroundSize="cover",
-                       ~backgroundImage={j|url($dog)|j},
-                       ~backgroundPosition="center",
-                       (),
-                     );
-                   <div key=dog style=imageStyle />;
-                 })
-               ->React.array
-             }}
-          */
-       }}
-    </g>
-  </svg>;
+  switch (state) {
+  | ErrorFetchingTrace => React.string("An error occurred!")
+  | LoadingTrace => React.string("Loading...")
+  | LoadedTrace(trace) =>
+    let swTrace = List.map(SMALL2Theia.smlToTheiaIR, trace);
+    let initState = List.nth(swTrace, 0) |> render;
+    let width = initState.bbox.sizeOffset->Sidewinder.Rectangle.width;
+    let height = initState.bbox.sizeOffset->Sidewinder.Rectangle.height;
+    let xOffset =
+      initState.bbox.translation.x +. initState.bbox.sizeOffset->Sidewinder.Rectangle.x1;
+    let yOffset =
+      initState.bbox.translation.y +. initState.bbox.sizeOffset->Sidewinder.Rectangle.y1;
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={Js.Float.toString(width)}
+      height={Js.Float.toString(height)}>
+      <g
+        transform={
+          "translate("
+          ++ Js.Float.toString(-. xOffset)
+          ++ ", "
+          ++ Js.Float.toString(-. yOffset)
+          ++ ")"
+        }>
+        {List.nth(swTrace, 0) |> Sidewinder.Main.render}
+      </g>
+    </svg>;
+  /* ->Belt.Array.mapWithIndex((i, dog) => {
+              let imageStyle =
+                ReactDOMRe.Style.make(
+                  ~height="120px",
+                  ~width="100%",
+                  ~marginRight=i === Js.Array.length(dogs) - 1 ? "0px" : "8px",
+                  ~borderRadius="8px",
+                  ~boxShadow="0px 4px 16px rgb(200, 200, 200)",
+                  ~backgroundSize="cover",
+                  ~backgroundImage={j|url($dog)|j},
+                  ~backgroundPosition="center",
+                  (),
+                );
+              <div key=dog style=imageStyle />;
+            })
+          ->React.array
+        }}
+     */
+  };
 };
