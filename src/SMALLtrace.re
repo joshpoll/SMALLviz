@@ -42,7 +42,9 @@ let make = (~program) => {
     {switch (state) {
      | ErrorFetchingTrace => React.string("An error occurred!")
      | LoadingTrace => React.string("Loading...")
-     | LoadedTrace(trace) => <> {program.name |> React.string} </>
+     | LoadedTrace(trace) =>
+       let swTrace = List.map(SMALL2Theia.smlToTheiaIR, trace);
+       <> {List.nth(swTrace, 0) |> Sidewinder.Main.render} </>;
      /* ->Belt.Array.mapWithIndex((i, dog) => {
                  let imageStyle =
                    ReactDOMRe.Style.make(
