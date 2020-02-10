@@ -4,7 +4,7 @@ type state =
   | LoadedTrace(list(Small.SML.configuration));
 
 [@react.component]
-let make = (~program) => {
+let make = (~program, ~width, ~height) => {
   let (state, setState) = React.useState(() => LoadingTrace);
 
   // Notice that instead of `useEffect`, we have `useEffect0`. See
@@ -31,38 +31,43 @@ let make = (~program) => {
     None;
   });
 
-  <div
-    style={ReactDOMRe.Style.make(
-      ~height="120px",
-      ~display="flex",
-      ~alignItems="center",
-      ~justifyContent="center",
-      (),
-    )}>
-    {switch (state) {
-     | ErrorFetchingTrace => React.string("An error occurred!")
-     | LoadingTrace => React.string("Loading...")
-     | LoadedTrace(trace) =>
-       let swTrace = List.map(SMALL2Theia.smlToTheiaIR, trace);
-       <> {List.nth(swTrace, 0) |> Sidewinder.Main.render} </>;
-     /* ->Belt.Array.mapWithIndex((i, dog) => {
-                 let imageStyle =
-                   ReactDOMRe.Style.make(
-                     ~height="120px",
-                     ~width="100%",
-                     ~marginRight=i === Js.Array.length(dogs) - 1 ? "0px" : "8px",
-                     ~borderRadius="8px",
-                     ~boxShadow="0px 4px 16px rgb(200, 200, 200)",
-                     ~backgroundSize="cover",
-                     ~backgroundImage={j|url($dog)|j},
-                     ~backgroundPosition="center",
-                     (),
-                   );
-                 <div key=dog style=imageStyle />;
-               })
-             ->React.array
-           }}
-        */
-     }}
-  </div>;
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={Js.Float.toString(width)}
+    height={Js.Float.toString(height)}>
+    <g
+      transform={
+        "translate("
+        ++ Js.Float.toString(width /. 2.)
+        ++ ", "
+        ++ Js.Float.toString(height /. 2.)
+        ++ ")"
+      }>
+      {switch (state) {
+       | ErrorFetchingTrace => React.string("An error occurred!")
+       | LoadingTrace => React.string("Loading...")
+       | LoadedTrace(trace) =>
+         let swTrace = List.map(SMALL2Theia.smlToTheiaIR, trace);
+         <> {List.nth(swTrace, 0) |> Sidewinder.Main.render} </>;
+       /* ->Belt.Array.mapWithIndex((i, dog) => {
+                   let imageStyle =
+                     ReactDOMRe.Style.make(
+                       ~height="120px",
+                       ~width="100%",
+                       ~marginRight=i === Js.Array.length(dogs) - 1 ? "0px" : "8px",
+                       ~borderRadius="8px",
+                       ~boxShadow="0px 4px 16px rgb(200, 200, 200)",
+                       ~backgroundSize="cover",
+                       ~backgroundImage={j|url($dog)|j},
+                       ~backgroundPosition="center",
+                       (),
+                     );
+                   <div key=dog style=imageStyle />;
+                 })
+               ->React.array
+             }}
+          */
+       }}
+    </g>
+  </svg>;
 };

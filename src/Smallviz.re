@@ -54,7 +54,7 @@ ReactDOMRe.render(
 [|Small.Main.{name: "foo", text: "5"}|] |> Array.map(Small.Main.traceProgram) |> Js.Promise.all;
 
 ReactDOMRe.render(
-  <SMALLtrace program=Small.Main.{name: "bar", text: "5"} />,
+  <SMALLtrace program=Small.Main.{name: "bar", text: "5"} width=500. height=300. />,
   makeContainer("SMALLviz"),
 );
 
