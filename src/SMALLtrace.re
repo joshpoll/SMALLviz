@@ -1,27 +1,60 @@
+let leftButtonStyle = ReactDOMRe.Style.make(~borderRadius="4px 0px 0px 4px", ~width="48px", ());
+let rightButtonStyle = ReactDOMRe.Style.make(~borderRadius="0px 4px 4px 0px", ~width="48px", ());
+
 let render = n =>
   Sidewinder.(
     n |> LCA.propagateLCA |> Layout.computeBBoxes |> RenderLinks.renderLinks |> Render.render
   );
 
-type state =
+type traceProgress =
   | LoadingTrace
   | ErrorFetchingTrace
   | LoadedTrace(list(Small.SML.configuration));
 
+type state = {
+  pos: int,
+  traceProgress,
+};
+
+type action =
+  | Increment
+  | Decrement
+  | Trace(list(Small.SML.configuration))
+  | Error;
+
+let initialState = {pos: 0, traceProgress: LoadingTrace};
+
+let reducer = (state, action) => {
+  switch (state.traceProgress) {
+  | LoadedTrace(trace) =>
+    switch (action) {
+    | Increment => {...state, pos: min(List.length(trace) - 1, state.pos + 1)}
+    | Decrement => {...state, pos: max(0, state.pos - 1)}
+    | _ => state
+    }
+  | _ =>
+    switch (action) {
+    | Error => {...state, traceProgress: ErrorFetchingTrace}
+    | Trace(trace) => {...state, traceProgress: LoadedTrace(trace)}
+    | _ => state
+    }
+  };
+};
+
 [@react.component]
 let make = (~program) => {
-  let (state, setState) = React.useState(() => LoadingTrace);
+  let (state, dispatch) = React.useReducer(reducer, initialState);
 
   // Notice that instead of `useEffect`, we have `useEffect0`. See
   // reasonml.github.io/reason-react/docs/en/components#hooks for more info
   React.useEffect0(() => {
     Small.Main.traceProgram(program)
     |> Js.Promise.then_(trace => {
-         setState(_previousState => LoadedTrace(trace));
+         dispatch(Trace(trace));
          Js.Promise.resolve();
        })
     |> Js.Promise.catch(_err => {
-         setState(_previousState => ErrorFetchingTrace);
+         dispatch(Error);
          Js.Promise.resolve();
        })
     |> ignore;
@@ -36,33 +69,42 @@ let make = (~program) => {
     None;
   });
 
-  switch (state) {
+  switch (state.traceProgress) {
   | ErrorFetchingTrace => React.string("An error occurred!")
   | LoadingTrace => React.string("Loading...")
   | LoadedTrace(trace) =>
     let swTrace = List.map(SMALL2Theia.smlToTheiaIR, trace);
-    let initState = List.nth(swTrace, 0) |> render;
+    let initState = List.nth(swTrace, state.pos /* 150 */) |> render;
     let width = initState.bbox.sizeOffset->Sidewinder.Rectangle.width;
     let height = initState.bbox.sizeOffset->Sidewinder.Rectangle.height;
     let xOffset =
       initState.bbox.translation.x +. initState.bbox.sizeOffset->Sidewinder.Rectangle.x1;
     let yOffset =
       initState.bbox.translation.y +. initState.bbox.sizeOffset->Sidewinder.Rectangle.y1;
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={Js.Float.toString(width)}
-      height={Js.Float.toString(height)}>
-      <g
-        transform={
-          "translate("
-          ++ Js.Float.toString(-. xOffset)
-          ++ ", "
-          ++ Js.Float.toString(-. yOffset)
-          ++ ")"
-        }>
-        {List.nth(swTrace, 0) |> Sidewinder.Main.render}
-      </g>
-    </svg>;
+    <div>
+      <div> {React.string("state: ")} {React.string(string_of_int(state.pos))} </div>
+      <button style=leftButtonStyle onClick={_event => dispatch(Decrement)}>
+        {React.string("<-")}
+      </button>
+      <button style=rightButtonStyle onClick={_event => dispatch(Increment)}>
+        {React.string("->")}
+      </button>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={Js.Float.toString(width)}
+        height={Js.Float.toString(height)}>
+        <g
+          transform={
+            "translate("
+            ++ Js.Float.toString(-. xOffset)
+            ++ ", "
+            ++ Js.Float.toString(-. yOffset)
+            ++ ")"
+          }>
+          {initState.rendered}
+        </g>
+      </svg>
+    </div>;
   /* ->Belt.Array.mapWithIndex((i, dog) => {
               let imageStyle =
                 ReactDOMRe.Style.make(

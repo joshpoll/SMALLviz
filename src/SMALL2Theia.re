@@ -9,33 +9,20 @@ let rec interleave = (xs, ys) =>
   | ([x, ...xs], _) => [x, ...interleave(ys, xs)]
   };
 
-let hSeq = (~gap=0., nodes) =>
-  seq(~nodes, ~linkRender=(~source, ~target) => <> </>, ~gap, ~direction=LeftRight);
+let hSeq = (~gap=0., nodes) => seq(~nodes, ~linkRender=None, ~gap, ~direction=LeftRight);
 
-let vSeq = (~gap=0., nodes) =>
-  seq(~nodes, ~linkRender=(~source, ~target) => <> </>, ~gap, ~direction=UpDown);
+let vSeq = (~gap=0., nodes) => seq(~nodes, ~linkRender=None, ~gap, ~direction=UpDown);
 
 let apply = (ops, args) => hSeq(interleave(ops, args));
 
 /* TODO: incoporate name */
-let value = (_name, nodes) => box(~dx=5., ~dy=5., nodes, []);
-let cell = (_name, nodes) => box(~dx=5., ~dy=5., nodes, []);
+let value = (_name, node) => box(~dx=5., ~dy=5., node, []);
+let cell = (_name, node) => box(~dx=5., ~dy=5., node, []);
 
-let kv = (key, value) =>
-  box(
-    [
-      seq(
-        ~nodes=[key, value],
-        ~linkRender=(~source, ~target) => <> </>,
-        ~gap=5.,
-        ~direction=LeftRight,
-      ),
-    ],
-    [],
-  );
+let kv = (key, value) => box(~dx=5., ~dy=5., hSeq([box(key, []), box(value, [])]), []);
 
 let map = (~keyHeader, ~valueHeader, kvs) =>
-  vSeq(~gap=2., [hSeq(~gap=5., [keyHeader, valueHeader]), ...kvs]);
+  vSeq(~gap=2., [hSeq(~gap=20., [keyHeader, valueHeader]), ...kvs]);
 
 let split = (list, n) => {
   let rec aux = (i, acc) =>
@@ -150,7 +137,7 @@ and compilePat = p =>
 
 let compileSVal = (sv: sVal) =>
   switch (sv) {
-  | INT(n) => value([], [str(string_of_int(n))])
+  | INT(n) => value([], str(string_of_int(n)))
   };
 
 let compileIdStatus = id =>
@@ -163,13 +150,16 @@ let compileIdStatus = id =>
 let rec compileVal_ = v =>
   switch (v) {
   | SVAL(sv) => compileSVal(sv)
-  | BASVAL(b) => value([], [hSeq([str("builtin "), str(b)])])
-  | VID(x) => value([], [str(x)])
-  | VIDVAL(vid, v) => value([vid], [compileVal_(v)])
-  | RECORD([]) => value([], [str("{}")])
-  | RECORD(r) => value([], [apply([str("{"), str("}")], [compileRecord(r)])])
+  | BASVAL(b) => value([], hSeq([str("builtin "), str(b)]))
+  | VID(x) => value([], str(x))
+  | VIDVAL(vid, v) => value([vid], compileVal_(v))
+  | RECORD([]) => value([], str("{}"))
+  | RECORD(r) => value([], apply([str("{"), str("}")], [compileRecord(r)]))
   | FCNCLOSURE(m, e, ve) =>
-    value(["closure"], [compileMatch(m), compileEnv(e), compileEnv(ve)])
+    value(
+      ["closure"],
+      hSeq(List.map(n => box(n, []), [compileMatch(m), compileEnv(e), compileEnv(ve)])),
+    )
   }
 
 and compileRecord = r =>
@@ -187,11 +177,21 @@ and compileRecordEnv = rve =>
     hSeq([str(l), str("="), compileEnv(ve), str(", "), compileRecordEnv(rve)])
   }
 
-and compileKVs = ((k, (v, id))) =>
-  kv(str(k), hSeq([compileVal_(v), str(" "), compileIdStatus(id)]))
+and compileKVs = ((k, (v, id))) => [
+  str(k),
+  hSeq(~gap=10., [compileVal_(v), compileIdStatus(id)]),
+]
 
+/* TODO: maybe remove List.rev once direction can be controlled in Theia table */
 and compileEnv = e =>
-  e |> List.map(compileKVs) |> List.rev |> map(~keyHeader=str("Id"), ~valueHeader=str("Val"));
+  table(
+    ~nodes=[[str("Id"), str("Val")], ...e |> List.map(compileKVs) |> List.rev],
+    ~linkRender=None,
+    ~xGap=0.,
+    ~yGap=0.,
+    ~xDirection=LeftRight,
+    ~yDirection=UpDown,
+  );
 
 let rec compileStrDec = sd =>
   switch (sd) {
@@ -241,12 +241,7 @@ let compileCtxt = c =>
   | VALBINDE(p, (), None) => kont(hSeq, [compilePat(p), str(" = ")], 2)
   | APPL((), x) => kont(hSeq, [str(" "), compileAtExp(x)], 0)
   | APPR(f, ()) => kont(hSeq, [compileVal_(f), str(" ")], 2)
-  | SEQL((), sd2) =>
-    kont(
-      vSeq /* TODO: more vertical separation? TODO: insertion point   doesn't seem quite right. needs a nested hseq */,
-      [str(";"), compileStrDec(sd2)],
-      0,
-    )
+  | SEQL((), sd2) => (hole => vSeq([kont(hSeq, [str(";")], 0, hole), compileStrDec(sd2)]))
   | DECD () => kont(hSeq, [], 0)
   | RECORDER () => kont(hSeq, [str("{"), str("}")], 1)
   | EXPROWE([], l, (), None) => kont(hSeq, [str(l), str("=")], 2)
@@ -296,9 +291,9 @@ let compileRewrite = ({focus, ctxts}) =>
 let compileFrame = ({rewrite, env}) =>
   vSeq([
     /* "frame", */
-    cell("env", [compileEnv(env)]),
-    cell("rewrite", [compileRewrite(rewrite)]),
+    cell("env", compileEnv(env)),
+    cell("rewrite", compileRewrite(rewrite)),
   ]);
 
 /* TODO: hSeq? */
-let smlToTheiaIR = fs => vSeq(List.map(compileFrame, fs) |> List.rev);
+let smlToTheiaIR = fs => vSeq(~gap=10., List.map(compileFrame, fs) |> List.rev);

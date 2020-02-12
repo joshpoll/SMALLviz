@@ -58,6 +58,22 @@ ReactDOMRe.render(
   makeContainer("SMALLviz"),
 );
 
+let appendExample = {|
+fun append (xs, ys) =
+  if null xs
+  then ys
+  else hd (xs) :: append (tl(xs), ys)
+
+val x = [2, 4]
+val y = [5, 3, 0]
+val z = append(x, y)
+|};
+
+ReactDOMRe.render(
+  <SMALLtrace program=Small.Main.{name: "append", text: appendExample} />,
+  makeContainer("Append"),
+);
+
 /* |> Js.Promise.then_(theiaIRTraces => Js.Promise.resolve(Js.log2("theiaIRTraces", theiaIRTraces))); */
 
 /*
