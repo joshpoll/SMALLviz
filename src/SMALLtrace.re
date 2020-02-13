@@ -73,7 +73,11 @@ let make = (~program) => {
   | ErrorFetchingTrace => React.string("An error occurred!")
   | LoadingTrace => React.string("Loading...")
   | LoadedTrace(trace) =>
-    let swTrace = List.map(SMALL2Theia.smlToTheiaIR, trace);
+    let swTrace =
+      trace
+      |> List.map(SMALL2Theia.smlToTheiaIR)
+      |> List.map(Sidewinder.Transform.hide("idStatus"))
+      |> List.map((Some(x)) => x);
     let initState = List.nth(swTrace, state.pos /* 150 */) |> render;
     let width = initState.bbox.sizeOffset->Sidewinder.Rectangle.width;
     let height = initState.bbox.sizeOffset->Sidewinder.Rectangle.height;
