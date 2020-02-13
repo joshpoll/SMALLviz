@@ -9,7 +9,7 @@ let render = n =>
 type traceProgress =
   | LoadingTrace
   | ErrorFetchingTrace
-  | LoadedTrace(list(Small.SML.configuration));
+  | LoadedTrace(list(Small.Resugar.configuration));
 
 type state = {
   pos: int,
@@ -19,7 +19,7 @@ type state = {
 type action =
   | Increment
   | Decrement
-  | Trace(list(Small.SML.configuration))
+  | Trace(list(Small.Resugar.configuration))
   | Error;
 
 let initialState = {pos: 0, traceProgress: LoadingTrace};
@@ -50,7 +50,7 @@ let make = (~program) => {
   React.useEffect0(() => {
     Small.Main.traceProgram(program)
     |> Js.Promise.then_(trace => {
-         dispatch(Trace(trace));
+         dispatch(Trace(trace |> List.map(Small.Main.resugar)));
          Js.Promise.resolve();
        })
     |> Js.Promise.catch(_err => {

@@ -1,6 +1,6 @@
 /* Compiler from SML configuration to TheiaIR */
 /* TODO: so many List.revs. Maybe I should change the default? */
-open Small.SML;
+open Small.Resugar;
 open Sidewinder.Theia;
 
 let rec interleave = (xs, ys) =>
@@ -153,6 +153,7 @@ let rec compileVal_ = v =>
   | BASVAL(b) => value([], hSeq([str("builtin "), str(b)]))
   | VID(x) => value([], str(x))
   | VIDVAL(vid, v) => value([vid], compileVal_(v))
+  | TUPLE(l) => hSeq(List.map(compileVal_, l))
   | RECORD([]) => value([], str("{}"))
   | RECORD(r) => value([], apply([str("{"), str("}")], [compileRecord(r)]))
   | FCNCLOSURE(m, e, ve) =>
