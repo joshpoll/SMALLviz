@@ -77,7 +77,8 @@ let make = (~program) => {
       trace
       |> List.map(SMALL2Theia.smlToTheiaIR)
       |> List.map(Sidewinder.Transform.hide("idStatus"))
-      |> List.map((Some(x)) => x);
+      |> List.map((Some(x)) => x)
+      |> List.map(Sidewinder.Transform.denest("::", "::"));
     let initState = List.nth(swTrace, state.pos /* 150 */) |> render;
     let width = initState.bbox.sizeOffset->Sidewinder.Rectangle.width;
     let height = initState.bbox.sizeOffset->Sidewinder.Rectangle.height;

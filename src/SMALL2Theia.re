@@ -142,7 +142,7 @@ and compilePat = p =>
 
 let compileSVal = (sv: sVal) =>
   switch (sv) {
-  | INT(n) => value("", str(string_of_int(n), ()))
+  | INT(n) => /* value("", str(string_of_int(n), ())) */ str(string_of_int(n), ())
   };
 
 let compileIdStatus = id =>
@@ -156,9 +156,54 @@ let rec compileVal_ = v =>
   switch (v) {
   | SVAL(sv) => compileSVal(sv)
   | BASVAL(b) => value("", hSeq([str("builtin ", ()), str(b, ())]))
+  | VID(x) when x == "nil" => str("/", ())
   | VID(x) => value("", str(x, ()))
-  | VIDVAL(vid, v) => value(vid, compileVal_(v))
-  | TUPLE(l) => hSeq(List.map(compileVal_, l))
+  | VIDVAL(vid, v) =>
+    /* vSeq([str(vid, ()), compileVal_(v)]) */
+    /* value(vid, compileVal_(v)) */
+    seq(
+      ~tags=[vid],
+      ~nodes=[str(vid, ()), compileVal_(v)],
+      ~linkRender=None,
+      ~gap=0.,
+      ~direction=UpDown,
+      (),
+    )
+  | TUPLE(l) =>
+    box(
+      ~dx=0.,
+      ~dy=0.,
+      table(
+        ~tags=["tuple"],
+        ~nodes=[List.map(compileVal_, l)],
+        ~linkRender=
+          Some(
+            (~source, ~target) =>
+              <line
+                x1={Js.Float.toString(
+                  (source->Sidewinder.Rectangle.x2 +. target->Sidewinder.Rectangle.x1) /. 2.,
+                )}
+                x2={Js.Float.toString(
+                  (source->Sidewinder.Rectangle.x2 +. target->Sidewinder.Rectangle.x1) /. 2.,
+                )}
+                y1={Js.Float.toString(
+                  (source->Sidewinder.Rectangle.y1 +. target->Sidewinder.Rectangle.y1) /. 2.,
+                )}
+                y2={Js.Float.toString(
+                  (source->Sidewinder.Rectangle.y2 +. target->Sidewinder.Rectangle.y2) /. 2.,
+                )}
+                stroke="black"
+              />,
+          ),
+        ~xGap=0.,
+        ~yGap=0.,
+        ~xDirection=LeftRight,
+        ~yDirection=UpDown,
+        (),
+      ),
+      [],
+      (),
+    )
   | RECORD([]) => value("", str("{}", ()))
   | RECORD(r) => value("", apply([str("{", ()), str("}", ())], [compileRecord(r)]))
   | FCNCLOSURE(m, e, ve) =>
