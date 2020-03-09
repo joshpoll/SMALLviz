@@ -3,7 +3,7 @@ let rightButtonStyle = ReactDOMRe.Style.make(~borderRadius="0px 4px 4px 0px", ~w
 
 let render = n =>
   Sidewinder.(
-    n |> LCA.propagateLCA |> Layout.computeBBoxes |> RenderLinks.renderLinks |> Render.render
+    n |> LCA.fromKernel |> Layout.computeBBoxes |> RenderLinks.renderLinks |> Render.render
   );
 
 type traceProgress =

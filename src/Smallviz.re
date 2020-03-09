@@ -41,21 +41,25 @@ ReactDOMRe.render(<ReasonUsingJSUsingReason />, makeContainer("Reason Using JS U
 
 ReactDOMRe.render(<ReasonUsingJSUsingReason />, makeContainer("Reason Using JS Using Reason"));
 
-ReactDOMRe.render(
-  <Visualize node=Sidewinder.SidewinderExamples.g width=500. height=300. />,
-  makeContainer("linked list"),
-);
+/* ReactDOMRe.render(
+     <Visualize node=Sidewinder.SidewinderExamples.g width=500. height=300. />,
+     makeContainer("linked list"),
+   );
 
-ReactDOMRe.render(
-  <Visualize node=Sidewinder.SidewinderExamples.astExample width=500. height=300. />,
-  makeContainer("AST"),
-);
+   ReactDOMRe.render(
+     <Visualize node=Sidewinder.SidewinderExamples.astExample width=500. height=300. />,
+     makeContainer("AST"),
+   ); */
 
 [|Small.Main.{name: "foo", text: "5"}|] |> Array.map(Small.Main.traceProgram) |> Js.Promise.all;
 
-ReactDOMRe.render(
-  <SMALLtrace program=Small.Main.{name: "bar", text: "5"} />,
-  makeContainer("SMALLviz"),
+List.mapi(
+  (i, ex) =>
+    ReactDOMRe.render(
+      <SMALLtrace program=Small.Main.{name: "ex" ++ string_of_int(i), text: ex} />,
+      makeContainer("ex" ++ string_of_int(i)),
+    ),
+  Examples.[ex0, ex1, ex2, ex3, ex4, ex5],
 );
 
 let appendExample = {|
@@ -72,6 +76,15 @@ val z = append(x, y)
 ReactDOMRe.render(
   <SMALLtrace program=Small.Main.{name: "append", text: appendExample} />,
   makeContainer("Append"),
+);
+
+let simpleList = {|
+[2, 4]
+|};
+
+ReactDOMRe.render(
+  <SMALLtrace program=Small.Main.{name: "simple list", text: simpleList} />,
+  makeContainer("simple list"),
 );
 
 /* |> Js.Promise.then_(theiaIRTraces => Js.Promise.resolve(Js.log2("theiaIRTraces", theiaIRTraces))); */
